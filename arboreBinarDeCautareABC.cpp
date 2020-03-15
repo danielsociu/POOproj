@@ -40,7 +40,7 @@ class ABC{
     Nod* root;
 public:
     ABC(Nod* node){
-        root=node;
+        this->root=node;
     }
     void insert(int info){
         Nod* it=root;
@@ -58,12 +58,37 @@ public:
             it->dr=adder;
     }
     void operator + (const int info){
-        this->insert(info);
+        Nod* it=root;
+        Nod* adder=new Nod(info);
+        while((it->st!=nullptr&&info<it->info)||(it->dr!=nullptr&&info>it->info))
+        {
+            if(info<it->info)
+                it=it->st;
+            else
+                it=it->dr;
+        }
+        if(info<it->info)
+            it->st=adder;
+        else
+            it->dr=adder;
     }
-    friend istream & operator >>(istream &in,ABC& arb){
+    istream& operator >>(istream &in,ABC& arb){
         int info;
         in>>info;
-        arb.insert(info);
+        Nod* it=this->root;
+        Nod* adder=new Nod(info);
+        while((it->st!=nullptr&&info<it->info)||(it->dr!=nullptr&&info>it->info))
+        {
+            if(info<it->info)
+                it=it->st;
+            else
+                it=it->dr;
+        }
+        if(info<it->info)
+            it->st=adder;
+        else
+            it->dr=adder;
+
         return in;
     }
 
@@ -95,5 +120,5 @@ int main()
     cin>>arbore;
     cout<<arbore.height(arbore.getRoot())<<'\n';
     arbore.frunze(arbore.getRoot());
-//    arbore.frunze(arbore.getRoot());
+    //    arbore.frunze(arbore.getRoot());
 }
