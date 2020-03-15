@@ -39,6 +39,9 @@ public:
 class ABC{
     Nod* root;
 public:
+    ABC(){
+        this->root=nullptr;
+    }
     ABC(Nod* node){
         this->root=node;
     }
@@ -72,10 +75,10 @@ public:
         else
             it->dr=adder;
     }
-    istream& operator >>(istream &in,ABC& arb){
+    friend istream & operator >>(istream &in,ABC &arb){
         int info;
         in>>info;
-        Nod* it=this->root;
+        Nod* it=arb.getRoot();
         Nod* adder=new Nod(info);
         while((it->st!=nullptr&&info<it->info)||(it->dr!=nullptr&&info>it->info))
         {
@@ -117,7 +120,7 @@ int main()
     ABC arbore(new Nod(5));
     arbore.insert(20);
     arbore+2;
-    cin>>arbore;
+    cin>>arbore>>arbore;
     cout<<arbore.height(arbore.getRoot())<<'\n';
     arbore.frunze(arbore.getRoot());
     //    arbore.frunze(arbore.getRoot());
