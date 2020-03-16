@@ -45,9 +45,18 @@ public:
     ABC(Nod* node){
         this->root=node;
     }
+    ABC(int info){
+        Nod* adder=new Nod(info);
+        this->root=adder;
+    }
     void insert(int info){
         Nod* it=root;
         Nod* adder=new Nod(info);
+        if(it==nullptr)
+        {
+            root=adder;
+            return;
+        }
         while((it->st!=nullptr&&info<it->info)||(it->dr!=nullptr&&info>it->info))
         {
             if(info<it->info)
@@ -63,6 +72,11 @@ public:
     void operator + (const int info){
         Nod* it=root;
         Nod* adder=new Nod(info);
+        if(it==nullptr)
+        {
+            root=adder;
+            return;
+        }
         while((it->st!=nullptr&&info<it->info)||(it->dr!=nullptr&&info>it->info))
         {
             if(info<it->info)
@@ -80,6 +94,11 @@ public:
         in>>info;
         Nod* it=arb.getRoot();
         Nod* adder=new Nod(info);
+        if(it==nullptr)
+        {
+            arb.root=adder;
+            return in;
+        }
         while((it->st!=nullptr&&info<it->info)||(it->dr!=nullptr&&info>it->info))
         {
             if(info<it->info)
@@ -117,11 +136,13 @@ int main()
 {
     cin.tie(0);
     ios_base::sync_with_stdio(0);
-    ABC arbore(new Nod(5));
+    //ABC arbore(new Nod(15)); // Cu constructor initializator
+    //ABC arbore;
+    ABC arbore(10);
     arbore.insert(20);
     arbore+2;
     cin>>arbore>>arbore;
-    cout<<arbore.height(arbore.getRoot())<<'\n';
+    cout<<arbore.height(arbore.getRoot())<<" levels\n";
     arbore.frunze(arbore.getRoot());
     //    arbore.frunze(arbore.getRoot());
 }
