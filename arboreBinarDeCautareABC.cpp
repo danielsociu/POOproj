@@ -19,6 +19,7 @@ using namespace std;
 const int INF=0x3f3f3f3f;
 
 int n;
+class ABC;
 
 class Nod{
 public:
@@ -69,6 +70,53 @@ public:
         else
             it->dr=adder;
     }
+    
+    void deleter(int val){
+        Nod* father=root;
+        Nod* it=root;
+        while(it->info!=val){
+            father=it;
+            if(val<it->info)
+                it=it->st;
+            else
+                it=it->dr;
+            if(it==nullptr)
+                break;
+        }
+        if(it==nullptr){
+            cout<<"Element not found\n";
+            return;
+        }
+        /*
+         * Deci daca exista nodul din dreapta, vom adauga toate
+         * nodurile din stanga de la cel sters(it) la
+         * extremitatea stanga a nodului din dreapta lui it
+         * altfel, pur si simplu tatal va pointa la nodul din stanga
+         */
+        if(it->dr!=nullptr){
+            Nod* nxt=it->dr;
+            while(nxt->st!=nullptr)
+                nxt=nxt->st;
+            nxt->st=it->st;
+            if(father!=it){
+                if(father->st==it)
+                    father->st=it->dr;
+                else
+                    father->dr=it->dr;
+            }else{
+                this->root=it->dr;
+            }
+        }
+        else if(father!=it){
+            if(father->st==it)
+                father->st=it->st;
+            else
+                father->dr=it->st;
+        }else{
+            this->root=it->st;
+        }
+        delete it;
+    }
     void operator + (const int info){
         Nod* it=root;
         Nod* adder=new Nod(info);
@@ -88,6 +136,13 @@ public:
             it->st=adder;
         else
             it->dr=adder;
+    }
+    void adaugaN(int n){
+        int val;
+        for(;n--;){
+            cin>>val;
+            this->insert(val);
+        }
     }
     friend istream & operator >>(istream &in,ABC &arb){
         int info;
@@ -112,6 +167,39 @@ public:
             it->dr=adder;
 
         return in;
+    }
+    void preordine(ostream &out,Nod *node){
+        if(node!=nullptr){
+            out<<node->info<<' ';
+            preordine(out,node->st);
+            preordine(out,node->dr);
+        }
+    }
+    void inordine(ostream &out,Nod *node){
+        if(node!=nullptr){
+            inordine(out,node->st);
+            out<<node->info<<' ';
+            inordine(out,node->dr);
+        }
+    }
+    void postordine(ostream &out,Nod *node){
+        if(node!=nullptr){
+            postordine(out,node->st);
+            postordine(out,node->dr);
+            out<<node->info<<' ';
+        }
+    }
+    friend ostream & operator <<(ostream &out,ABC &arb){
+        out<<"Preordine: ";
+        arb.preordine(out,arb.root);
+        out<<'\n';
+        out<<"Inordine: ";
+        arb.inordine(out,arb.root);
+        out<<'\n';
+        out<<"Postordine: ";
+        arb.postordine(out,arb.root);
+        out<<'\n';
+        return out;
     }
 
     int height(Nod* node){
@@ -138,11 +226,15 @@ int main()
     ios_base::sync_with_stdio(0);
     //ABC arbore(new Nod(15)); // Cu constructor initializator
     //ABC arbore;
-    ABC arbore(10);
+    ABC arbore(15);
     arbore.insert(20);
     arbore+2;
-    cin>>arbore>>arbore;
+    cin>>arbore;
+    arbore.adaugaN(3);
     cout<<arbore.height(arbore.getRoot())<<" levels\n";
     arbore.frunze(arbore.getRoot());
+    cout<<arbore;
+    arbore.deleter(15);
+    cout<<arbore;
     //    arbore.frunze(arbore.getRoot());
 }
