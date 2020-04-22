@@ -80,7 +80,6 @@ public:
             in>>matr.a[i][0];
             FOR(j,1,matr.a[i][0])
                 in>>matr.a[i][j];
-            cout<<'\n';
         }
         return in;
     }
@@ -118,9 +117,8 @@ public:
     virtual istream& grafIn(istream& in)=0;
 
     virtual istream& operator>>(istream& in){
-        cout<<"Etner number of nodes: ";
+        cout<<"Enter number of nodes: ";
         in>>this->nr_noduri;
-        cout<<'\n';
         return in;
     }
     virtual ostream& operator<<(ostream& out){
@@ -129,11 +127,11 @@ public:
     }
 };
 
-class Graf_complet: public Graf{
+class Graf_complet:virtual public Graf{
     int nr_muchii;
 public:
     Graf_complet(): Graf(0),nr_muchii(0){}
-    Graf_complet(int x): Graf(x-1),nr_muchii(x){}
+    Graf_complet(int x): Graf(x),nr_muchii(x){}
     Graf_complet(int x,int y): Graf(x),nr_muchii(y){}
     Graf_complet(const Graf_complet& cpy): Graf(cpy){
         this->nr_muchii=cpy.nr_muchii;
@@ -142,10 +140,13 @@ public:
         nr_muchii=0;
     }//apeleaza si ~Graf() but nothing to do
     istream& grafIn(istream& in){
-        return this->Graf::operator>>(in);
+        cout<<"Enter number of edges: ";
+        in>>nr_muchii;
+        return in;
     }
     ostream& grafOut(ostream& out){
-        return this->Graf::operator<<(out);
+        out<<"The graph has "<<nr_muchii<<" edges\n";
+        return out;
     }
 
     Graf_complet& operator=(const Graf_complet& cpy)
@@ -158,20 +159,16 @@ public:
     }
 
     friend istream& operator>>(istream& in,Graf_complet& cpy){
-        cpy.grafIn(in);
-        cout<<"Enter number of edges: ";
-        in>>cpy.nr_muchii;
-        cout<<'\n';
-        return in;
+        cpy.Graf::operator>>(in);
+        return cpy.grafIn(in);
     }
     friend ostream& operator<<(ostream& out,Graf_complet& cpy){
-        cpy.grafOut(out);
-        out<<"The graph has "<<cpy.nr_muchii<<" edges\n";
-        return out;
+        cpy.Graf::operator<<(out);
+        return cpy.grafOut(out);
     }
 };
 
-class Graf_antisimetric: public Graf{
+class Graf_antisimetric:virtual public Graf{
     Matrice mat;
 public:
     Graf_antisimetric():Graf(0),mat(0){}
@@ -180,10 +177,12 @@ public:
     ~Graf_antisimetric(){}//literally nothing to do
 
     istream& grafIn(istream& in){
-        return this->Graf::operator>>(in);
+        in>>mat;
+        return in;
     }
     ostream& grafOut(ostream& out){
-        return this->Graf::operator<<(out);
+        out<<mat;
+        return out;
     }
 
     Graf_antisimetric& operator=(const Graf_antisimetric& cpy){
@@ -194,22 +193,51 @@ public:
         return *this;
     }
     friend istream& operator>>(istream& in,Graf_antisimetric& cpy){
-        cpy.grafIn(in);
-        in>>cpy.mat;
-        return in;
+        cpy.Graf::operator>>(in);
+        return cpy.grafIn(in);
     }
     friend ostream& operator<<(ostream& out,Graf_antisimetric& cpy){
-        cpy.grafOut(out);
-        out<<cpy.mat;
-        return out;
+        cpy.Graf::operator<<(out);
+        return cpy.grafOut(out);
     }
 };
 
 class Graf_turneu: public Graf_complet, public Graf_antisimetric
 {
 public:
-    Graf_turneu():Graf_complet(),Graf_antisimetric(){}
+    Graf_turneu():Graf(),Graf_complet(),Graf_antisimetric(){}
+    Graf_turneu(int x):Graf(x), Graf_complet(x),Graf_antisimetric(x){}
+    Graf_turneu(int x,int y):Graf(x), Graf_complet(y),Graf_antisimetric(x){}
+    Graf_turneu(int nrNod,int nrMuchii,int Matr):Graf(nrNod), Graf_complet(nrNod,nrMuchii),Graf_antisimetric(nrNod,Matr){}
+    Graf_turneu(const Graf_turneu& cpy):Graf_antisimetric(cpy),Graf_complet(cpy){}
+    ~Graf_turneu(){}
 
+    Graf_turneu& operator=(const Graf_turneu& cpy){
+        if(this!=&cpy){
+            Graf_antisimetric::operator=(cpy);
+            Graf_complet::operator=(cpy);
+        }
+        return *this;
+    }
+    istream& grafIn(istream& in){
+        this->Graf::operator>>(in);
+        this->Graf_complet::grafIn(in);
+        this->Graf_antisimetric::grafIn(in);
+        return in;
+    }
+    ostream& grafOut(ostream& out){
+        this->Graf::operator<<(out);
+        this->Graf_complet::grafOut(out);
+        this->Graf_antisimetric::grafOut(out);
+        return out;
+    }
+
+    friend istream& operator>>(istream& in,Graf_turneu& gtrn){
+        return gtrn.grafIn(in);
+    }
+    friend ostream& operator<<(ostream& out,Graf_turneu& gtrn){
+        return gtrn.grafOut(out);
+    }
 };
 
 
@@ -220,7 +248,7 @@ int main()
     //cin.tie(0);
     //ios_base::sync_with_stdio(0);
     int pot;
-    Graf_antisimetric x(5,6);
+    Graf_turneu x(5);
     cout<<x;
     cin>>x;
     cout<<x;
