@@ -54,6 +54,9 @@ public:
             delete[] a[i];
         delete[] a;
     }
+    const int& operator()(int x, int y)const{
+        return this->a[x][y];
+    }
     Matrice& operator=(const Matrice& cpy){
         if(this != &cpy){
             if(n<cpy.n){
@@ -107,6 +110,9 @@ public:
     ~Graf(){
         nr_noduri=0;
     }
+    int getNoduri(){
+        return nr_noduri;
+    }
 
     virtual Graf& operator=(const Graf& cpy){
         if(this!=&cpy)
@@ -148,6 +154,23 @@ public:
         out<<"The graph has "<<nr_muchii<<" edges\n";
         return out;
     }
+    virtual bool isGrafComplet(const Matrice& matr){
+        FOR(i,1,getNoduri()){
+            int *viz=new int[getNoduri()+1]();
+            viz[i]=1;
+            FOR(j,1,matr(i,0))
+                viz[matr(i,j)]=1;
+            FOR(j,1,getNoduri())
+                if(viz[j]==0){
+                    FOR(k,1,matr(j,0))
+                        if(matr(j,k)==i)
+                            viz[j]=1;
+                    if(viz[j]==0)
+                        return 0;
+                }
+        }
+        return 1;
+    }
 
     Graf_complet& operator=(const Graf_complet& cpy)
     {
@@ -169,26 +192,44 @@ public:
 };
 
 class Graf_antisimetric:virtual public Graf{
-    Matrice mat;
+    Matrice matr;
 public:
-    Graf_antisimetric():Graf(0),mat(0){}
-    Graf_antisimetric(int x):Graf(x),mat(x){}
-    Graf_antisimetric(int x,int y): Graf(x),mat(((x>y)?x:y)){}
+    Graf_antisimetric():Graf(0),matr(0){}
+    Graf_antisimetric(int x):Graf(x),matr(x){}
+    Graf_antisimetric(int x,int y): Graf(x),matr(((x>y)?x:y)){}
     ~Graf_antisimetric(){}//literally nothing to do
 
     istream& grafIn(istream& in){
-        in>>mat;
+        in>>matr;
         return in;
     }
     ostream& grafOut(ostream& out){
-        out<<mat;
+        out<<matr;
         return out;
+    }
+    virtual bool isGrafAntisimetric(const Matrice& matr){
+        FOR(i,1,getNoduri()){
+            int *viz=new int[getNoduri()+1]();
+            viz[i]=1;
+            FOR(j,1,matr(i,0))
+            {
+                viz[matr(i,j)]=1;
+                FOR(k,1,matr(matr(i,j),0))
+                    if(matr(matr(i,j),k)==i)
+                        return 0;
+            }
+        }
+        return 1;
+
+    }
+    const Matrice& getMatrice(){
+        return this->matr;
     }
 
     Graf_antisimetric& operator=(const Graf_antisimetric& cpy){
         if(this!=&cpy){
             Graf::operator=(cpy);
-            this->mat=cpy.mat;
+            this->matr=cpy.matr;
         }
         return *this;
     }
@@ -211,6 +252,16 @@ public:
     Graf_turneu(int nrNod,int nrMuchii,int Matr):Graf(nrNod), Graf_complet(nrNod,nrMuchii),Graf_antisimetric(nrNod,Matr){}
     Graf_turneu(const Graf_turneu& cpy):Graf_antisimetric(cpy),Graf_complet(cpy){}
     ~Graf_turneu(){}
+
+    bool isGrafTurneu(){
+        return (Graf_antisimetric::isGrafAntisimetric(getMatrice())&&Graf_complet::isGrafComplet(getMatrice()));
+    }
+    bool isGrafAntisimetric(){
+        return Graf_antisimetric::isGrafAntisimetric(getMatrice());
+    }
+    bool isGrafComplet(){
+        return Graf_complet::isGrafComplet(getMatrice());
+    }
 
     Graf_turneu& operator=(const Graf_turneu& cpy){
         if(this!=&cpy){
@@ -247,10 +298,19 @@ int main()
 {
     //cin.tie(0);
     //ios_base::sync_with_stdio(0);
-    int pot;
-    Graf_turneu x(5);
+    int pot,n;
+    cout<<"Enter number of Nodes: ";
+    cin>>n;
+    cout<<'\n';
+    Graf_turneu x(n);
     cout<<x;
     cin>>x;
     cout<<x;
+    if(x.isGrafComplet())
+        cout<<"The graph is Complet"<<'\n';
+    if(x.isGrafAntisimetric())
+        cout<<"The graph is Antisimetric"<<'\n';
+    if(x.isGrafTurneu())
+        cout<<"The graph is Turneu"<<'\n';
 
 }
